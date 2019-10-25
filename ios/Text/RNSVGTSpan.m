@@ -90,12 +90,12 @@ static CGFloat RNSVGTSpan_radToDeg = 180 / (CGFloat)M_PI;
                 NSUInteger count = [emoji count];
                 CGFloat fontSize = [gc getFontSize];
                 for (NSUInteger i = 0; i < count; i++) {
-                    UILabel *label = [emoji objectAtIndex:i];
+                    UILabel *lbl = [emoji objectAtIndex:i];
                     NSValue *transformValue = [emojiTransform objectAtIndex:i];
                     CGAffineTransform transform = [transformValue CGAffineTransformValue];
                     CGContextConcatCTM(context, transform);
                     CGContextTranslateCTM(context, 0, -fontSize);
-                    [label.layer renderInContext:context];
+                    [lbl.layer renderInContext:context];
                     CGContextTranslateCTM(context, 0, fontSize);
                     CGContextConcatCTM(context, CGAffineTransformInvert(transform));
                 }
@@ -137,7 +137,7 @@ static CGFloat RNSVGTSpan_radToDeg = 180 / (CGFloat)M_PI;
     return attrs;
 }
 
-TopAlignedLabel *label;
+TopAlignedLabel *lbl;
 - (void)drawWrappedText:(CGContextRef)context gc:(RNSVGGlyphContext *)gc rect:(CGRect)rect {
     [self pushGlyphContext];
     fontRef = [self getFontFromContext];
@@ -168,17 +168,17 @@ TopAlignedLabel *label;
     }
 
     UIFont *font = (__bridge UIFont *)(fontRef);
-    if (!label) {
-        label = [[TopAlignedLabel alloc] init];
+    if (!lbl) {
+        lbl = [[TopAlignedLabel alloc] init];
     }
-    label.attributedText = (__bridge NSAttributedString * _Nullable)(attrString);
-    label.baselineAdjustment = UIBaselineAdjustmentNone;
-    label.lineBreakMode = NSLineBreakByWordWrapping;
-    label.backgroundColor = UIColor.clearColor;
-    label.textAlignment = align;
-    label.numberOfLines = 0;
-    label.opaque = NO;
-    label.font = font;
+    lbl.attributedText = (__bridge NSAttributedString * _Nullable)(attrString);
+    lbl.baselineAdjustment = UIBaselineAdjustmentNone;
+    lbl.lineBreakMode = NSLineBreakByWordWrapping;
+    lbl.backgroundColor = UIColor.clearColor;
+    lbl.textAlignment = align;
+    lbl.numberOfLines = 0;
+    lbl.opaque = NO;
+    lbl.font = font;
 
     CGFloat fontSize = [gc getFontSize];
     CGFloat height = CGRectGetHeight(rect);
@@ -193,15 +193,15 @@ TopAlignedLabel *label;
                 context:nil];
 
     CGRect bounds = CGRectMake(0, 0, width, s.size.height);
-    label.frame = bounds;
-    label.bounds = bounds;
+    lbl.frame = bounds;
+    lbl.bounds = bounds;
 
     firstX = [gc nextXWithDouble:0];
     firstY = [gc nextY] - font.ascender;
     CGFloat dx = firstX;
     CGFloat dy = firstY;
     CGContextTranslateCTM(context, dx, dy);
-    [label.layer renderInContext:context];
+    [lbl.layer renderInContext:context];
     CGContextTranslateCTM(context, -dx, -dy);
     [self popGlyphContext];
     [self renderPathTo:context rect:rect];
@@ -221,7 +221,7 @@ TopAlignedLabel *label;
 
     if (self.inlineSize != nil && self.inlineSize.value != 0) {
         CGAffineTransform transform = CGAffineTransformMakeTranslation(firstX, firstY);
-        path = CGPathCreateWithRect(label.bounds, &transform);
+        path = CGPathCreateWithRect(lbl.bounds, &transform);
         self.path = CGPathRetain(path);
         self.skip = true;
         return path;
@@ -978,31 +978,31 @@ TopAlignedLabel *label;
             CGFloat width = box.size.width;
 
             if (width == 0) { // Render unicode emoji
-                UILabel *label = [[UILabel alloc] init];
+                UILabel *lbl = [[UILabel alloc] init];
                 CFIndex startIndex = indices[g];
                 long len = MAX(1, endIndex - startIndex);
                 NSRange range = NSMakeRange(startIndex, len);
                 NSString* currChars = [str substringWithRange:range];
-                label.text = currChars;
-                label.opaque = NO;
-                label.backgroundColor = UIColor.clearColor;
+                lbl.text = currChars;
+                lbl.opaque = NO;
+                lbl.backgroundColor = UIColor.clearColor;
                 UIFont * customFont = [UIFont systemFontOfSize:fontSize];
 
                 CGSize measuredSize = [currChars sizeWithAttributes:
                                        @{NSFontAttributeName:customFont}];
-                label.font = customFont;
+                lbl.font = customFont;
                 CGFloat width = ceil(measuredSize.width);
                 CGFloat height = ceil(measuredSize.height);
                 CGRect bounds = CGRectMake(0, 0, width, height);
-                label.frame = bounds;
+                lbl.frame = bounds;
 
                 CGContextConcatCTM(context, transform);
                 CGContextTranslateCTM(context, 0, -fontSize);
-                [label.layer renderInContext:context];
+                [lbl.layer renderInContext:context];
                 CGContextTranslateCTM(context, 0, fontSize);
                 CGContextConcatCTM(context, CGAffineTransformInvert(transform));
 
-                [emoji addObject:label];
+                [emoji addObject:lbl];
                 [emojiTransform addObject:[NSValue valueWithCGAffineTransform:transform]];
             } else {
                 transform = CGAffineTransformScale(transform, 1.0, -1.0);
